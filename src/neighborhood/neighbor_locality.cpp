@@ -11,11 +11,17 @@
  ******************************************/
 
 void map_procs_to_nodes(LocalityComm* locality, const int orig_num_msgs,
-        const int* orig_procs, const int* orig_counts,
+        const int* orig_procs, const int* orig_indptr,
         std::vector<int>& msg_nodes, std::vector<int>& msg_node_to_local,
         bool incr);
 void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
-        const int* orig_send_ptr, const int* orig_sendcounts, const long* orig_send_indices,
+        const int* orig_send_ptr, const long* orig_send_indices,
+        const std::vector<int>& nodes_to_local, CommData* send_data,
+        CommData* recv_data, CommData* local_data,
+        std::vector<int>& recv_idx_nodes,
+        LocalityComm* locality, const int tag);
+void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
+        const int* orig_send_ptr, 
         const std::vector<int>& nodes_to_local, CommData* send_data,
         CommData* recv_data, CommData* local_data,
         std::vector<int>& recv_idx_nodes,
@@ -45,11 +51,9 @@ void update_indices(LocalityComm* locality,
 void init_locality(const int n_sends, 
         const int* send_procs, 
         const int* send_indptr,
-        const int* sendcounts,
         const int n_recvs,
         const int* recv_procs,
         const int* recv_indptr,
-        const int* recvcounts,
         const long* global_send_indices,
         const long* global_recv_indices,
         const MPI_Datatype sendtype, 
@@ -72,7 +76,7 @@ void init_locality(const int n_sends,
     map_procs_to_nodes(locality_comm, 
             n_sends, 
             send_procs, 
-            sendcounts,
+            send_indptr,
             send_nodes, 
             send_node_to_local, 
             true);
@@ -82,7 +86,6 @@ void init_locality(const int n_sends,
     form_local_comm(n_sends, 
             send_procs, 
             send_indptr, 
-            sendcounts,
             global_send_indices, 
             send_node_to_local,
             locality_comm->local_S_comm->send_data, 
@@ -105,7 +108,7 @@ void init_locality(const int n_sends,
     map_procs_to_nodes(locality_comm, 
             n_recvs, 
             recv_procs, 
-            recvcounts,
+            recv_indptr,
             recv_nodes, 
             recv_node_to_local, 
             false);
@@ -115,7 +118,6 @@ void init_locality(const int n_sends,
     form_local_comm(n_recvs,
             recv_procs,
             recv_indptr, 
-            recvcounts,
             global_recv_indices,
             recv_node_to_local,
             locality_comm->local_R_comm->recv_data, 
@@ -136,12 +138,8 @@ void init_locality(const int n_sends,
     update_global_comm(locality_comm);
 
     // Update send and receive indices
-    int send_idx_size = 0;
-    for (int i = 0; i < n_sends; i++)
-        send_idx_size += sendcounts[i];
-    int recv_idx_size = 0;
-    for (int i = 0; i < n_recvs; i++)
-        recv_idx_size += recvcounts[i];
+    int send_idx_size = send_indptr[n_sends];
+    int recv_idx_size = recv_indptr[n_recvs];
     std::map<long, int> send_global_to_local;
     std::map<long, int> recv_global_to_local;
     for (int i = 0; i < send_idx_size; i++)
@@ -177,7 +175,7 @@ void destroy_locality(MPIX_Request* request)
 // Map original communication processes to nodes on which they lie
 // And assign local processes to each node
 void map_procs_to_nodes(LocalityComm* locality, const int orig_num_msgs,
-        const int* orig_procs, const int* orig_counts,
+        const int* orig_procs, const int* orig_indptr,
         std::vector<int>& msg_nodes, std::vector<int>& msg_node_to_local,
         bool incr)
 {
@@ -202,7 +200,7 @@ void map_procs_to_nodes(LocalityComm* locality, const int orig_num_msgs,
     for (int i = 0; i < orig_num_msgs; i++)
     {
         proc = orig_procs[i];
-        size = orig_counts[i];
+        size = orig_indptr[i+1] - orig_indptr[i];
         node = get_node(locality->communicators, proc);
         node_sizes[node] += size;
     }
@@ -252,7 +250,7 @@ void map_procs_to_nodes(LocalityComm* locality, const int orig_num_msgs,
 // or final local_L communicator) along with the corresponding portion
 // of the fully local (local_L) communicator.
 void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
-        const int* orig_send_ptr, const int* orig_sendcounts, const long* orig_send_indices,
+        const int* orig_send_ptr, const long* orig_send_indices,
         const std::vector<int>& nodes_to_local, CommData* send_data,
         CommData* recv_data, CommData* local_data,
         std::vector<int>& recv_idx_nodes,
@@ -299,7 +297,7 @@ void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
     for (int i = 0; i < orig_num_sends; i++)
     {
         global_proc = orig_send_procs[i];
-        size = orig_sendcounts[i];
+        size = orig_send_ptr[i+1] - orig_send_ptr[i];
         node = get_node(locality->communicators, global_proc);
         if (locality->communicators->rank_node != node)
         {
@@ -340,7 +338,7 @@ void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
     {
         node = orig_to_node[i];
         start = orig_send_ptr[i];
-        end = orig_send_ptr[i] + orig_sendcounts[i];
+        end = orig_send_ptr[i+1];
         if (node == -1)
         {
             for (int j = start; j < end; j++)
@@ -407,8 +405,12 @@ void form_local_comm(const int orig_num_sends, const int* orig_send_procs,
         {
             recv_idx[ctr] = recv_buffer[i];
             tmpnodes[ctr++] = recv_buffer[i+1];
+            //recv_data->indices[ctr] = recv_buffer[i];
+            //recv_idx_nodes[ctr++] = recv_buffer[i+1];
         }
         recvptr[recv_data->num_msgs+1] = recvptr[recv_data->num_msgs] + (size/2);
+        //recv_data->procs[recv_data->num_msgs] = proc;
+        //recv_data->indptr[recv_data->num_msgs + 1] = recv_data->indptr[recv_data->num_msgs] + (size / 2);
         recv_data->num_msgs++;
     }
 
