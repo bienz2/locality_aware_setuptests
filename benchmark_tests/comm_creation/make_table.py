@@ -2,7 +2,7 @@ import os
 
 fpath = "../benchmark_tests/comm_creation"
 matrix_directories = next(os.walk(f"{fpath}"))[1]
-machine_name = "Hopper"
+machine_name = "Quartz"
 #algos = ['Standard','Torsten','RMA']
 algos = ['Standard']
 

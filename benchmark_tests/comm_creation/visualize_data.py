@@ -7,7 +7,7 @@ RUN_TORSTEN = False
 RUN_RMA = True
 RUN_RMA_DYANMIC = True
 
-machine_name = "Wheeler"
+machine_name = "Quartz"
 matrix_directories = next(os.walk('.'))[1]
 
 standard_dict_average = dict()
