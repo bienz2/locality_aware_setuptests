@@ -1,0 +1,5 @@
+
+Lmod is automatically replacing "mvapich2/2.3.7" with "openmpi/4.1.2".
+
+srun: Job step aborted: Waiting up to 62 seconds for job step to finish.
+slurmstepd: error: *** JOB 702925 ON quartz915 CANCELLED AT 2023-07-01T22:39:04 DUE TO TIME LIMIT ***

@@ -7,8 +7,8 @@ f_path = '../../../benchmark_tests/comm_creation'
 mpi_type = "openmpi"
 
 
-def Create_Power_Two_Tests(num_tests : int):
-  fp = open(f'QUARTZ_POWER_TWO.sh', 'w')
+def Create_Power_Two_Tests(num_tests : int, m_name : str):
+  fp = open(f'{m_name}_QUARTZ_POWER_TWO.sh', 'w')
   fp.write("#!/usr/bin/bash\n")
   fp.write(f"#SBATCH --open-mode=append\n")
   fp.write("#SBATCH --partition pbatch\n")
@@ -19,11 +19,10 @@ def Create_Power_Two_Tests(num_tests : int):
   fp.write("module load openmpi\n\n")
 
 
-  for (i, m_name) in enumerate(matrix_names):
-    for j in range(11):
-     for _ in range(num_tests):
-       for algo in ["STANDARD", "TORSTEN", "RMA"]:
-         fp.write(f"srun --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{algo}_many_node --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{algo}_many_node_err ../../../build_quartz/benchmarks/comm_creators ../../../test_data/{m_name}.pm 1 {m_name} {algo}\n")
+  for j in range(11):
+    for _ in range(num_tests):
+      for algo in ["STANDARD", "TORSTEN", "RMA"]:
+        fp.write(f"srun --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{algo}_many_node --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{algo}_many_node_err ../../../build_quartz/benchmarks/comm_creators ../../../test_data/{m_name}.pm 1 {m_name} {algo}\n")
 
 for (i, m_name) in enumerate(matrix_names):
   if(not os.path.exists(f"{f_path}/{m_name}/")):
@@ -40,4 +39,4 @@ for (i, m_name) in enumerate(matrix_names):
     os.mkdir(f"{f_path}/{m_name}/data/output")
     os.mkdir(f"{f_path}/{m_name}/data/error")
 
-  Create_Power_Two_Tests(10)
+  Create_Power_Two_Tests(10, m_name)
