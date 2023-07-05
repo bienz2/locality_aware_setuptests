@@ -135,7 +135,7 @@ def parse_output_strings(average_dict : dict, max_dict : dict, min_dict : dict, 
 
 # Create plot with an x-axis of number of processes and y-label of time taken
 def make_time_plot(key_list : list, data_list : list, title : str, out_file : str):
-  plt.plot(key_list, data_list)
+  plt.plot(key_list, data_list, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Time Taken (ms)")
   plt.title(title)
@@ -144,7 +144,7 @@ def make_time_plot(key_list : list, data_list : list, title : str, out_file : st
 
 # Create plot of number of message sent
 def make_msg_num_plot(num_msg_keys : list, num_msg_data : list, matrix : str, machine_name : str, method : str):
-  plt.plot(num_msg_keys, num_msg_data)
+  plt.plot(num_msg_keys, num_msg_data, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Max # of Messages Sent")
   plt.title(f"{matrix} num message on {machine_name} ({method})")
@@ -153,7 +153,7 @@ def make_msg_num_plot(num_msg_keys : list, num_msg_data : list, matrix : str, ma
 
 # Create plot of message size to send
 def make_msg_size_plot(msg_size_keys : list, msg_size_data : list, matrix: str, machine_name : str, method : str):
-  plt.plot(msg_size_keys, msg_size_data)
+  plt.plot(msg_size_keys, msg_size_data, '--ob')
   plt.xlabel("Number of Proceses")
   plt.ylabel("Max Message Size (Bytes)")
   plt.title(f"{matrix} message size on {machine_name} ({method})")
@@ -192,7 +192,7 @@ def visualize_data(fp_1 : __file__, fp_2 : __file__, fp_3 : __file__, matrix : s
   make_msg_size_plot(msg_size_keys_rma, msg_size_data_rma, matrix, machine_name, "RMA")
 
 
-  plt.plot(average_keys_standard, average_data_standard, average_keys_torsten, average_data_torsten, average_keys_rma, average_data_rma)
+  plt.plot(average_keys_standard, average_data_standard, '--or', average_keys_torsten, average_data_torsten, '--og', average_keys_rma, average_data_rma, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Time Taken (ms)")
   plt.title(f"{matrix} average run time on {machine_name} (standard vs torsten vs RMA)")
@@ -200,7 +200,7 @@ def visualize_data(fp_1 : __file__, fp_2 : __file__, fp_3 : __file__, matrix : s
   plt.savefig(f"{fpath}/{matrix}/parsed_data/plots/average/{matrix}_{machine_name}_compare_average_plot.png")
   plt.clf()
 
-  plt.plot(max_keys_standard, max_data_standard, max_keys_torsten, max_data_torsten, max_keys_rma, max_data_rma)
+  plt.plot(max_keys_standard, max_data_standard, '--or', max_keys_torsten, max_data_torsten, '--og', max_keys_rma, max_data_rma, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Time Taken (ms)")
   plt.title(f"{matrix} max run time on {machine_name} (standard vs torsten vs RMA)")
@@ -208,7 +208,7 @@ def visualize_data(fp_1 : __file__, fp_2 : __file__, fp_3 : __file__, matrix : s
   plt.savefig(f"{fpath}/{matrix}/parsed_data/plots/max/{matrix}_{machine_name}_compare_max_plot.png")
   plt.clf()
 
-  plt.plot(min_keys_standard, min_data_standard, min_keys_torsten, min_data_torsten, min_keys_rma, min_data_rma)
+  plt.plot(min_keys_standard, min_data_standard, '--or', min_keys_torsten, min_data_torsten, '--og', min_keys_rma, min_data_rma, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Time Taken (ms)")
   plt.title(f"{matrix} min run time on {machine_name} (standard vs torsten vs RMA)")
@@ -261,7 +261,6 @@ for matrix in matrix_directories:
   for (out_list,out_file,out_name) in file_strings_map:
     if out_file == None:
       continue
-    print(out_file.name)
     for line in out_file.read().splitlines():
       if (line.strip().split(',')[0] != out_name) and (not line.replace('.','',1).isdigit()) and (line.strip().split(',')[0].split(' ')[0] != 'MAX_MSG_COUNT'):
         continue

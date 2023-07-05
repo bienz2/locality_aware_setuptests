@@ -2,7 +2,6 @@ import os
 import math
 
 matrix_names = ['3elt','lns_3937','bcsstm13','circuit_1','ct20stif','mbeacxc','onetone1','rbsa480']
-#matrix_names = ['3elt']
 f_path = '../../../benchmark_tests/comm_creation'
 mpi_type = "openmpi"
 
@@ -21,7 +20,7 @@ def Create_Power_Two_Tests(num_tests : int, m_name : str):
 
   for j in range(11):
     for _ in range(num_tests):
-      for algo in ["STANDARD", "TORSTEN", "RMA"]:
+      for algo in ["STANDARD", "TORSTEN", "RMA_DYNAMIC"]:
         fp.write(f"srun --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{algo}_many_node --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{algo}_many_node_err ../../../build_quartz/benchmarks/comm_creators ../../../test_data/{m_name}.pm 1 {m_name} {algo}\n")
 
 def Create_Varied_Power_Two_Tests(m_name : str, test_range : int):
@@ -36,7 +35,7 @@ def Create_Varied_Power_Two_Tests(m_name : str, test_range : int):
   fp.write("module load openmpi\n\n")
   for j in range(11):
       for i in range(1, test_range):
-          for algo in ["STANDARD", "TORSTEN", "RMA"]:
+          for algo in ["STANDARD", "TORSTEN", "RMA_DYNAMIC"]:
             fp.write(f"srun --time=24:00:00 --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{algo}_varied_runs --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{algo}_varied_runs_err ../../../build_quartz/benchmarks/comm_creators ../../../test_data/{m_name}.pm {2**i} {m_name} {algo}\n")
 
 
@@ -56,4 +55,4 @@ for (i, m_name) in enumerate(matrix_names):
     os.mkdir(f"{f_path}/{m_name}/data/error")
 
   #Create_Power_Two_Tests(10, m_name)
-  Create_Varied_Power_Two_Tests(m_name, 7)
+  Create_Varied_Power_Two_Tests(m_name, 10)

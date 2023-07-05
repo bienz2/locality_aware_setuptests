@@ -2,9 +2,9 @@ import os
 
 fpath = "../benchmark_tests/comm_creation"
 matrix_directories = next(os.walk(f"{fpath}"))[1]
-machine_name = "Quartz"
+machine_name = "QUARTZ"
 #algos = ['Standard','Torsten','RMA']
-algos = ['Standard']
+algos = ['STANDARD']
 
 def create_dirs(matrix : str):
   os.mkdir()

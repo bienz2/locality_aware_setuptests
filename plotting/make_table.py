@@ -1,26 +1,27 @@
 import os
+import math
 
-matrix_directories = next(os.walk('.'))[1]
-machine_name = "Hopper"
-#algos = ['Standard','Torsten','RMA']
-algos = ['Standard']
+fpath = '../benchmark_tests/comm_creation'
+matrix_directories = next(os.walk(f'{fpath}/'))[1]
+machine_name = "QUARTZ"
+algos = ['STANDARD','TORSTEN','RMA_DYNAMIC']
+algos = ['STANDARD']
 
 # Create directories if they don't exist
 def create_dirs(matrix : str):
-  os.mkdir()
-  if not os.path.exists(f"./{matrix}/parsed_data"):
-    os.mkdir(f"./{matrix}/parsed_data")
-    os.mkdir(f"./{matrix}/parsed_data/tables")
-    os.mkdir(f"./{matrix}/parsed_data/plots")
-    os.mkdir(f"./{matrix}/parsed_data/one_test_output")
-    os.mkdir(f"./{matrix}/plots/average")
-    os.mkdir(f"./{matrix}/plots/min")
-    os.mkdir(f"./{matrix}/plots/max")
+  if not os.path.exists(f"{fpath}/{matrix}/parsed_data"):
+    os.mkdir(f"{fpath}/{matrix}/parsed_data")
+    os.mkdir(f"{fpath}/{matrix}/parsed_data/tables")
+    os.mkdir(f"{fpath}/{matrix}/parsed_data/plots")
+    os.mkdir(f"{fpath}/{matrix}/parsed_data/one_test_output")
+    os.mkdir(f"{fpath}/{matrix}/plots/average")
+    os.mkdir(f"{fpath}/{matrix}/plots/min")
+    os.mkdir(f"{fpath}/{matrix}/plots/max")
 
 
 for matrix in matrix_directories:
   for algo in algos:
-    standard_file = open(f"./{matrix}/{matrix}_{machine_name}_{algo}_varied_runs","r")
+    standard_file = open(f"{fpath}/{matrix}/data/output/{matrix}_{machine_name}_{algo}_varied_runs","r")
     output_lines = []
   
     # Open File, clear out useless lines 
@@ -31,7 +32,7 @@ for matrix in matrix_directories:
       output_lines.append(line)
   
     create_dirs(matrix)
-    standard_out = open(f"./{matrix}/parsed_data/tables/{matrix}_{machine_name}_{algo}_table.txt","w")
+    standard_out = open(f"{fpath}/{matrix}/parsed_data/tables/{matrix}_{machine_name}_{algo}_table.txt","w")
     data_out = []
   
     # Parse information about average runtime, write to array
@@ -48,11 +49,13 @@ for matrix in matrix_directories:
       for j in range(num_tests):
         count += float(output_lines[i])
         i += 1
-      data_out[num_procs-2].append((num_tests, str((count / float(num_tests)))))
+#      print(data_out)
+      print(num_procs)
+      data_out[int(math.log2(num_procs))-1].append((num_tests, str((count / float(num_tests)))))
 
     # Print out table data
     for (num_procs, data) in enumerate(data_out):
-      standard_out.write(f"{num_procs+2}\n")
+      standard_out.write(f"{2**(num_procs+1)}\n")
       for (n,f) in data:
         standard_out.write(f"({n},{f}) ")
       standard_out.write("\n")
