@@ -1,7 +1,10 @@
 import os
 import math
 
+# original test suite
 matrix_names = ['3elt','lns_3937','bcsstm13','circuit_1','ct20stif','mbeacxc','onetone1','rbsa480']
+# expanded test suite
+matrix_names = ['nemeth26', 'bundle1', 'cbuckle', 'Kuu', 'ACTIVSg70k']
 f_path = '../../../benchmark_tests/comm_creation'
 mpi_type = "openmpi"
 
@@ -16,8 +19,6 @@ def Create_Power_Two_Tests(num_tests : int, m_name : str):
   fp.write("#SBATCH --mail-type=BEGIN,FAIL,END\n")
   fp.write("#SBATCH --mail-user=ageyko@unm.edu\n\n")
   fp.write("module load openmpi\n\n")
-
-
   for j in range(11):
     for _ in range(num_tests):
       for algo in ["STANDARD", "TORSTEN", "RMA_DYNAMIC"]:
@@ -54,5 +55,5 @@ for (i, m_name) in enumerate(matrix_names):
     os.mkdir(f"{f_path}/{m_name}/data/output")
     os.mkdir(f"{f_path}/{m_name}/data/error")
 
-  #Create_Power_Two_Tests(10, m_name)
-  Create_Varied_Power_Two_Tests(m_name, 7)
+  Create_Power_Two_Tests(10, m_name)
+  #Create_Varied_Power_Two_Tests(m_name, 7)
