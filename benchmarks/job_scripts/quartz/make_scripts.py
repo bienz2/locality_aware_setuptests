@@ -55,4 +55,4 @@ for (i, m_name) in enumerate(matrix_names):
     os.mkdir(f"{f_path}/{m_name}/data/error")
 
   #Create_Power_Two_Tests(10, m_name)
-  Create_Varied_Power_Two_Tests(m_name, 10)
+  Create_Varied_Power_Two_Tests(m_name, 7)
