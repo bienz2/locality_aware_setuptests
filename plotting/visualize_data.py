@@ -24,6 +24,10 @@ rma_dict_min = dict()
 rma_dict_num_msg = dict()
 rma_dict_msg_size = dict()
 
+standard_msg_speed = dict()
+torsten_msg_speed = dict()
+rma_msg_speed = dict()
+
 def create_dirs(matrix : str):
   if (not os.path.exists(f"{fpath}/{matrix}/parsed_data")):
     os.mkdir(f"{fpath}/{matrix}/parsed_data")
@@ -195,8 +199,8 @@ def visualize_data(fp_1 : __file__, fp_2 : __file__, fp_3 : __file__, matrix : s
   plt.plot(average_keys_standard, average_data_standard, '--or', average_keys_torsten, average_data_torsten, '--og', average_keys_rma, average_data_rma, '--ob')
   plt.xlabel("Number of Processes")
   plt.ylabel("Time Taken (ms)")
-  plt.title(f"{matrix} average run time on {machine_name} (standard vs torsten vs RMA)")
-  plt.legend(["standard", "torsten", "RMA"])
+  plt.title(f"{matrix} average run time on {machine_name}")
+  plt.legend(["Personalized", "Non-blocking", "Non-dynamic"])
   plt.savefig(f"{fpath}/{matrix}/parsed_data/plots/average/{matrix}_{machine_name}_compare_average_plot.png")
   plt.clf()
 
@@ -253,6 +257,7 @@ for matrix in matrix_directories:
   except:
     many_node_rma = None
   
+  algos = ["STANDARD", "TORSTEN", "RMA", "RMA_DYNAMIC"]
   file_strings_map = [(out_strings_standard,single_node_standard,"STANDARD"),(out_strings_standard,many_node_standard,"STANDARD"),
                       (out_strings_torsten,single_node_torsten,"TORSTEN"),(out_strings_torsten,many_node_torsten,"TORSTEN"),
                       (out_strings_rma,single_node_rma,"RMA"),(out_strings_rma,many_node_rma,"RMA")]
@@ -262,7 +267,7 @@ for matrix in matrix_directories:
     if out_file == None:
       continue
     for line in out_file.read().splitlines():
-      if (line.strip().split(',')[0] != out_name) and (not line.replace('.','',1).isdigit()) and (line.strip().split(',')[0].split(' ')[0] != 'MAX_MSG_COUNT'):
+      if (not (line.strip().split(',')[0] in algos)) and (not line.replace('.','',1).isdigit()) and (line.strip().split(',')[0].split(' ')[0] != 'MAX_MSG_COUNT'):
         continue
       out_list.append(line)
 
