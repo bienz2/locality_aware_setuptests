@@ -22,8 +22,8 @@ def Create_Power_Two_Tests(num_tests : int, m_name : str):
   fp.write("#SBATCH --nodes=64\n\n")
   fp.write("#SBATCH --mail-type=BEGIN,FAIL,END\n")
   fp.write("#SBATCH --mail-user=ageyko@unm.edu\n\n")
-  fp.write("module load openmpi\n\n")
-  f_name = "RMA_DYNAMIC_WINDOW"
+  fp.write("module load mvapich2\n\n")
+  f_name = "RMA_DYNAMIC"
   for j in range(11):
     for _ in range(num_tests):
       for algo in ["RMA_DYNAMIC"]:
