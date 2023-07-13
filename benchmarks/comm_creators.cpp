@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
         form_comm(A, algo, &win, &sizes);
         tfinal = MPI_Wtime() - t0;
         //if(i == 0 && algo == RMA_DYNAMIC) { tfinal += win_time; }
+        tfinal = win_time;
 
         double max_time = 0;
         int max_msg_count = 0;

@@ -23,11 +23,11 @@ def Create_Power_Two_Tests(num_tests : int, m_name : str):
   fp.write("#SBATCH --mail-type=BEGIN,FAIL,END\n")
   fp.write("#SBATCH --mail-user=ageyko@unm.edu\n\n")
   fp.write("module load openmpi\n\n")
-  f_name = "RMA_DYNAMIC_NO_WINDOW"
+  f_name = "RMA_DYNAMIC_WINDOW"
   for j in range(11):
     for _ in range(num_tests):
       for algo in ["RMA_DYNAMIC"]:
-        fp.write(f"srun --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{f_name}_many_node --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{f_name}_many_node_err ../../../build_quartz/benchmarks/comm_creators ../../../test_data/{m_name}.pm 1 {m_name} {algo}\n")
+        fp.write(f"srun --partition=pbatch --nodes={math.ceil((2**(j+1))/36)} --ntasks={(2**(j+1))} --output {f_path}/{m_name}/data/output/{m_name}_QUARTZ_{f_name}_many_node --error {f_path}/{m_name}/data/error/{m_name}_QUARTZ_{f_name}_many_node_err ../../../build_quartz_prime/benchmarks/comm_creators ../../../test_data/{m_name}.pm 1 {m_name} {algo}\n")
 
 def Create_Varied_Power_Two_Tests(m_name : str, test_range : int):
   fp = open(f"{m_name}_QUARTZ_VARIED_POWER_TWO.sh","w")
