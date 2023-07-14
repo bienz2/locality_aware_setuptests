@@ -28,6 +28,18 @@ struct Comm
 };
 
 template <typename U>
+void clear_comm(Comm<U>& comm)
+{
+    comm.n_msgs = 0;
+    comm.size_msgs = 0;
+    comm.procs.clear();
+    comm.ptr.clear();
+    comm.counts.clear();
+    comm.idx.clear();
+    comm.req.clear();
+}
+
+template <typename U>
 struct ParMat
 {
     Mat on_proc;
@@ -44,6 +56,13 @@ struct ParMat
     Comm<U> recv_comm;
     MPI_Comm dist_graph_comm;
 };
+
+template <typename U>
+void clear_mat_comm(ParMat<U>& A)
+{
+    clear_comm(A.send_comm);
+    clear_comm(A.recv_comm);
+}
 
 template <typename U>
 void form_recv_comm(ParMat<U>& A)
